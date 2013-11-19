@@ -750,7 +750,26 @@ class TreemaNode
       console.warn('could not resolve reference', schema.$ref, tv4.getMissingUris())
     resolved ?= {}
     delete resolved.title if scrubTitle and resolved.title?
+    #handle the i18n reference resolution here
+    if @hasi18nProperty schema then @resolvei18nProps schema, resolved
     resolved
+
+  #check if the schema has an i18n property
+  hasi18nProperty: (schema) ->
+    schema.$ref?.indexOf "#i18n" isnt -1
+
+  #dynamically resolve the i18n language objects
+  resolvei18nProps: (schema, resolved) ->
+    parentPath = schema.$ref.replace "#i18n", ""
+    baseSchemaProperties = @tv4.getSchema(parentPath).properties
+    unless schema.props?
+      console.warn "i18n props array is empty! Filling with all parent properties by default"
+      schema.props = (prop for prop,_ of baseSchemaProperties when prop isnt "i18n")
+    for _,i18nLanguageObject of resolved.properties
+      i18nLanguageObject.properties ?= {}
+      i18nLanguageObject.type = "object"
+      for i18nProperty in schema.props
+        i18nLanguageObject.properties[i18nProperty] = baseSchemaProperties[i18nProperty]
 
   chooseWorkingSchema: (workingSchemas, data) ->
     return workingSchemas[0] if workingSchemas.length is 1

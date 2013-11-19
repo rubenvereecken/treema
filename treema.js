@@ -1501,7 +1501,55 @@ TreemaNode = (function() {
     if (scrubTitle && (resolved.title != null)) {
       delete resolved.title;
     }
+    if (this.hasi18nProperty(schema)) {
+      this.resolvei18nProps(schema, resolved);
+    }
     return resolved;
+  };
+
+  TreemaNode.prototype.hasi18nProperty = function(schema) {
+    var _ref;
+    return (_ref = schema.$ref) != null ? _ref.indexOf("#i18n" !== -1) : void 0;
+  };
+
+  TreemaNode.prototype.resolvei18nProps = function(schema, resolved) {
+    var baseSchemaProperties, i18nLanguageObject, i18nProperty, parentPath, prop, _, _ref, _results;
+    parentPath = schema.$ref.replace("#i18n", "");
+    baseSchemaProperties = this.tv4.getSchema(parentPath).properties;
+    if (schema.props == null) {
+      console.warn("i18n props array is empty! Filling with all parent properties by default");
+      schema.props = (function() {
+        var _results;
+        _results = [];
+        for (prop in baseSchemaProperties) {
+          _ = baseSchemaProperties[prop];
+          if (prop !== "i18n") {
+            _results.push(prop);
+          }
+        }
+        return _results;
+      })();
+    }
+    _ref = resolved.properties;
+    _results = [];
+    for (_ in _ref) {
+      i18nLanguageObject = _ref[_];
+      if (i18nLanguageObject.properties == null) {
+        i18nLanguageObject.properties = {};
+      }
+      i18nLanguageObject.type = "object";
+      _results.push((function() {
+        var _i, _len, _ref1, _results1;
+        _ref1 = schema.props;
+        _results1 = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          i18nProperty = _ref1[_i];
+          _results1.push(i18nLanguageObject.properties[i18nProperty] = baseSchemaProperties[i18nProperty]);
+        }
+        return _results1;
+      })());
+    }
+    return _results;
   };
 
   TreemaNode.prototype.chooseWorkingSchema = function(workingSchemas, data) {

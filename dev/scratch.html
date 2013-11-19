@@ -33,13 +33,24 @@
 
   var jade = {};    
   $(document).ready(function () {
-    schema = {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string",
-        "format": "long-string"
+      schema = {
+          properties: {
+              text: { type: 'string' },
+              bool: { type: 'boolean'},
+              id: { type: 'number' },
+              i18n: { $ref: '#i18n'  }
+          },
+          definitions: {
+              i18n: {
+                  id: '#i18n',
+                  type: "object",
+                  properties: {
+                      'spa': { title: 'Spanish' },
+                      'jap': { title: 'Japanese' }
+                  }
+              }
+          }
       }
-    }
 
     var el = $('#scratch');
     var options = {
