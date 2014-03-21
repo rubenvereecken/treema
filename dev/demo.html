@@ -38,36 +38,128 @@
 
   <p>Let's see this library in action.</p>
   
-  <h3>Basics: A Contact Book</h3>
-  
-  <div id="addresses"></div>
+  <h3>An example request v2</h3>
+
+  <div id="request"></div>
+  <div id="response"></div>
   
   <script>
-    var contacts = [
-      { 'street-address': '10 Downing Street', 'country-name': 'UK', 'locality': 'London', 'name': 'Prime Minister' },
-      { 'street-address': '1600 Amphitheatre Pkwy', 'phone-number': '(650) 253-0000', 'name': 'Google'},
-      { 'street-address': '45 Rockefeller Plaza', 'region': 'NY', 'locality': 'New York', 'name': 'Rockefeller Center'},
-    ];
-    
-    var contact_book_schema = {
-      type: 'array',
-      items: {
-        "additionalProperties": false,
-        "type": "object",
-        "displayProperty": 'name',
-        "properties": {
-          "name": { type: "string", maxLength: 20 },
-          "street-address": { title: "Address 1", description: "Don't forget the number.", type: "string" },
-          "locality":{ "type": "string", title: "Locality" },
-          "region": { 'title': 'Region', type: 'string' },
-          "country-name": { "type": "string", title: "Country" },
-          "friend": { "type": "boolean", title: "Friend" },
-          "phone-number": { type: "string", maxLength: 20, minLength:4, title: 'Phone Number' }
+    var requestobj =
+      { "jsonrpc" : "2.0", "method": "start_urls", "params": [["http://amazon.com/", "http://bol.com", "http://ebay.com"]], "id":1 };
+
+    var responseobj =
+    { "jsonrpc" : "2.0", "result": [
+        {
+            "type": "ShopItem",
+            "fields": {
+                "name": "The Holy Grail",
+                "description": "Pretty rare old thing.",
+                "price": "1.99"
+            }
         }
-      }
+    ],
+        "id":1
+    }
+    
+    var request_schema = {
+                "type":"object",
+                "$schema": "http://json-schema.org/draft-03/schema",
+                "id": "http://jsonschema.net",
+                "required":["id", "jsonrpc", "method", "params"],
+                "properties":{
+                    "id": {
+                        "type":"number",
+                        "id": "http://jsonschema.net/id",
+                        "required":false
+                    },
+                    "jsonrpc": {
+                        "type":"string",
+                        "id": "http://jsonschema.net/jsonrpc",
+                        "required":false
+                    },
+                    "method": {
+                        "type":"string",
+                        "id": "http://jsonschema.net/method",
+                        "required":false
+                    },
+                    "params": {
+                        "type":"array",
+                        "id": "http://jsonschema.net/params",
+                        "required":false,
+                        "items":
+                        {
+                            "type":"array",
+                            "id": "http://jsonschema.net/params/0",
+                            "required":false
+                        }
+                    }
+                },
+
+            };
+
+    var response_schema = {
+        "type":"object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "http://jsonschema.net",
+        "required":false,
+        "properties":{
+            "id": {
+                "type":"number",
+                "id": "http://jsonschema.net/id",
+                "required":false
+            },
+            "jsonrpc": {
+                "type":"string",
+                "id": "http://jsonschema.net/jsonrpc",
+                "required":false
+            },
+            "result": {
+                "type":"array",
+                "id": "http://jsonschema.net/result",
+                "required":false,
+                "items":
+                {
+                    "type":"object",
+                    "id": "http://jsonschema.net/result/0",
+                    "required":false,
+                    "properties":{
+                        "fields": {
+                            "type":"object",
+                            "id": "http://jsonschema.net/result/0/fields",
+                            "required":false,
+                            "properties":{
+                                "description": {
+                                    "type":"string",
+                                    "id": "http://jsonschema.net/result/0/fields/description",
+                                    "required":false
+                                },
+                                "name": {
+                                    "type":"string",
+                                    "id": "http://jsonschema.net/result/0/fields/name",
+                                    "required":false
+                                },
+                                "price": {
+                                    "type":"string",
+                                    "id": "http://jsonschema.net/result/0/fields/price",
+                                    "required":false
+                                }
+                            }
+                        },
+                        "type": {
+                            "type":"string",
+                            "id": "http://jsonschema.net/result/0/type",
+                            "required":false
+                        }
+                    }
+                }
+
+
+            }
+        }
     };
 
-    buildTreemaExample($('#addresses'), contact_book_schema, contacts);
+    buildTreemaExample($('#request'), request_schema, requestobj);
+    buildTreemaExample($('#response'), response_schema, responseobj);
     
   </script>
   
